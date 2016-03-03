@@ -8,7 +8,7 @@ from Products.PloneTestCase import PloneTestCase as ptc
 from Products.PloneTestCase.layer import PloneSite
 from Products.PloneTestCase.layer import onsetup
 
-import collective.exhibition
+import collective.bookableEvent
 
 OPTION_FLAGS = doctest.NORMALIZE_WHITESPACE | \
                doctest.ELLIPSIS
@@ -23,7 +23,7 @@ class TestCase(ptc.PloneTestCase):
         @classmethod
         def setUp(cls):
             zcml.load_config('configure.zcml',
-              collective.exhibition)
+              collective.bookableEvent)
 
         @classmethod
         def tearDown(cls):
@@ -35,18 +35,18 @@ def test_suite():
 
         # Unit tests
         #doctestunit.DocFileSuite(
-        #    'README.txt', package='collective.exhibition',
+        #    'README.txt', package='collective.bookableEvent',
         #    setUp=testing.setUp, tearDown=testing.tearDown),
 
         #doctestunit.DocTestSuite(
-        #    module='collective.exhibition.mymodule',
+        #    module='collective.bookableEvent.mymodule',
         #    setUp=testing.setUp, tearDown=testing.tearDown),
 
 
         # Integration tests that use PloneTestCase
         ztc.ZopeDocFileSuite(
             'INTEGRATION.txt',
-            package='collective.exhibition',
+            package='collective.bookableEvent',
             optionflags = OPTION_FLAGS,
             test_class=TestCase),
 
@@ -55,7 +55,7 @@ def test_suite():
         # Integration tests for Object
         ztc.ZopeDocFileSuite(
             'Object.txt',
-            package='collective.exhibition',
+            package='collective.bookableEvent',
             optionflags = OPTION_FLAGS,
             test_class=TestCase),
 

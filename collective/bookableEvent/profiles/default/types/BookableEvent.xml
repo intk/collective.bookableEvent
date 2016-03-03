@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
-<object name="Exhibition"
+<object name="BookableEvent"
    meta_type="Dexterity FTI"
    i18n:domain="collective.bookableEvent" xmlns:i18n="http://xml.zope.org/namespaces/i18n">
 
   <!-- Basic metadata -->
-  <property name="title" i18n:translate="">BookableEvent</property>
+  <property name="title" i18n:translate="">Bookable Event</property>
   <property name="description" i18n:translate=""></property>
   <property name="icon_expr"></property>
   <property name="factory">collective.bookableEvent.bookableEvent</property>
@@ -17,12 +17,15 @@
   <property name="schema">collective.bookableEvent.bookableEvent.IBookableEvent</property>
   <property name="klass">collective.bookableEvent.bookableEvent.BookableEvent</property>
 
-  <property name="behaviors">
-     <element value="plone.app.contenttypes.interfaces.IEvent"/>
-     <element value="plone.app.content.interfaces.INameFromTitle" />
-     <element value="plone.app.dexterity.behaviors.metadata.IBasic"/>
-     <element value="plone.app.versioningbehavior.behaviors.IVersionable"/>
-     <element value="collective.dexteritytextindexer.behavior.IDexterityTextIndexer" />
+  <property name="behaviors" purge="false">
+      <element value="plone.app.contenttypes.interfaces.IEvent"/>
+      <element value="plone.app.dexterity.behaviors.metadata.IDublinCore"/>
+      <element value="plone.app.content.interfaces.INameFromTitle"/>
+      <element value="plone.app.dexterity.behaviors.discussion.IAllowDiscussion"/>
+      <element value="plone.app.dexterity.behaviors.exclfromnav.IExcludeFromNavigation"/>
+      <element value="plone.app.relationfield.behavior.IRelatedItems"/>
+      <element value="plone.app.versioningbehavior.behaviors.IVersionable" />
+      <element value="collective.dexteritytextindexer.behavior.IDexterityTextIndexer" />
    </property>
 
   <!-- View information -->

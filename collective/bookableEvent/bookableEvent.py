@@ -31,9 +31,15 @@ from zope.schema import getFieldsInOrder
 from collective import dexteritytextindexer
 from zope.component import adapts
 from zope.interface import implements
+from plone.app.contenttypes.interfaces import IEvent
+from plone.app.textfield.value import RichTextValue
 
 import datetime
 
+import plone.api
+
+
+BUTTON_TEMPLATE = '<p style="text-align: center; "><a class="btn btn-inverse btn-large internal-link" href="resolveuid/%s" target="_self" title="">Reserveer</a></p>'
 
 # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # #
@@ -41,13 +47,8 @@ import datetime
 # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # #
 
-
-
 class IBookableEvent(form.Schema):
-    text = RichText(
-        title=_(u"Body"),
-        required=False
-    )
+    form.model("models/bookableEvent.xml")
 
 # # # # # # # # # # # # # # # #
 # BookableEvent declaration   #
@@ -55,7 +56,6 @@ class IBookableEvent(form.Schema):
 
 class BookableEvent(Container):
     grok.implements(IBookableEvent)
-    pass
 
 class BookableEventView(DefaultView):
     def getFBdetails(self):
@@ -111,3 +111,77 @@ class BookableEventView(DefaultView):
         return details
 
 
+
+
+def modifiedLimit(obj, event):
+    form_id = getattr(obj, 'id', '')
+    if form_id == "limit_subscriptions":
+        limit = obj.getPlaceholder()
+        obj.setDescription("Er zijn nog %s plaatsen beschikbaar" %(limit))
+        obj.setMaxval(limit)
+        obj.setMinval("0")
+    else:
+        pass
+
+def createdEvent(obj, event):
+    FORM_ID = "opgaveformulier"
+    NEW_LIMIT = "15"
+    FORM_ELEM_ID = "limit_subscriptions"
+    TEMPLATE_ID = "workshop-template"
+
+    catalog = getToolByName(obj, 'portal_catalog')
+    # get form
+    forms = catalog(Subject=TEMPLATE_ID, portal_type="FormFolder")
+    if forms:
+        form = forms[0]
+        formFolder = form.getObject()
+        target = obj
+        source = formFolder
+        if FORM_ID not in obj:
+            plone.api.content.copy(source=source, target=target, safe_id=True)
+            if FORM_ID in obj:
+                new_form = obj[FORM_ID]
+                form_uid = new_form.UID()
+                plone.api.content.transition(obj=new_form, transition='publish')
+
+                button = BUTTON_TEMPLATE % (form_uid)
+
+                current_text = getattr(obj, 'text', '')
+                if not current_text:
+                    new_text = RichTextValue(button, 'text/html', 'text/html')
+                    setattr(obj, 'text', new_text)
+                else:
+                    current_text_raw = current_text.raw
+                    new_text_raw = current_text_raw + button
+                    new_text = RichTextValue(new_text_raw, 'text/html', 'text/html')
+                    setattr(obj, 'text', new_text)
+
+                # Set help veld
+                if FORM_ELEM_ID in new_form:
+                    limit = new_form['limit_subscriptions']
+                    limit.setDescription("Er zijn nog %s plaatsen beschikbaar" %(NEW_LIMIT))
+                    limit.setPlaceholder(NEW_LIMIT)
+                    limit.setMaxval(NEW_LIMIT)
+                    limit.setMinval("0")
+                else:
+                    # There's no limitation in this form
+                    pass
+
+            else:
+                # Something went wrong - form was not created
+                pass
+        else:
+            # Edit current form
+            new_form = obj[FORM_ID]
+            if FORM_ELEM_ID in new_form:
+                limit = new_form['limit_subscriptions']
+                limit.setDescription("Er zijn nog %s plaatsen beschikbaar" %(NEW_LIMIT))
+                limit.setPlaceholder(NEW_LIMIT)
+                limit.setMaxval(NEW_LIMIT)
+                limit.setMinval("0")
+            else:
+                # There's no limitation in this form
+                pass
+    else:
+        # Something went wrong. - template was not found
+        pass

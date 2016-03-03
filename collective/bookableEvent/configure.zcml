@@ -35,6 +35,19 @@
 
   <!-- -*- extra stuff goes here -*- -->
 
-  <!-- Add handler for creation event -->
+  <subscriber
+  for=".bookableEvent.IBookableEvent
+       zope.lifecycleevent.interfaces.IObjectAddedEvent"
+  handler=".bookableEvent.createdEvent"
+/>
+
+<subscriber
+  for="Products.PloneFormGen.interfaces.field.IPloneFormGenField
+       zope.lifecycleevent.interfaces.IObjectModifiedEvent"
+  handler=".bookableEvent.modifiedLimit"
+/>
+
+
+
 
 </configure>
