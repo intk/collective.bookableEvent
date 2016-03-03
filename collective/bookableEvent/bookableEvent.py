@@ -173,6 +173,14 @@ def createdEvent(obj, event):
         else:
             # Edit current form
             new_form = obj[FORM_ID]
+            new_form.reindexObject()
+            form_uid = new_form.UID()
+            plone.api.content.transition(obj=new_form, transition='publish')
+            button = BUTTON_TEMPLATE % (form_uid)
+            
+            new_text = RichTextValue(button, 'text/html', 'text/html')
+            setattr(obj, 'text', new_text)
+
             if FORM_ELEM_ID in new_form:
                 limit = new_form['limit_subscriptions']
                 limit.setDescription("Er zijn nog %s plaatsen beschikbaar" %(NEW_LIMIT))
