@@ -16,6 +16,13 @@
         <description />
         <title i18n:translate="label_event_end">Event Ends</title>
       </field>
+
+      <field name="limit_subscriptions" type="zope.schema.TextLine">
+        <description />
+        <required>False</required>
+        <title i18n:translate="">Limit of subscriptions</title>
+      </field>
+
       <field name="text" type="plone.app.textfield.RichText" indexer:searchable="true">
         <description />
         <required>False</required>

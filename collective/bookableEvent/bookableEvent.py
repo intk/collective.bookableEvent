@@ -116,15 +116,16 @@ class BookableEventView(DefaultView):
 def modifiedLimit(obj, event):
     form_id = getattr(obj, 'id', '')
     if form_id == "limit_subscriptions":
-        limit = obj.getPlaceholder()
+        limit = obj.getMaxval()
         obj.setDescription("Er zijn nog %s plaatsen beschikbaar" %(limit))
-        obj.setMaxval(limit)
+        obj.setPlaceholder(limit)
         obj.setMinval("0")
     else:
         pass
 
 def createdEvent(obj, event):
     FORM_ID = "opgaveformulier"
+    FORM_ID_TEMP = "opgaveformulier-1"
     NEW_LIMIT = "15"
     FORM_ELEM_ID = "limit_subscriptions"
     TEMPLATE_ID = "workshop-template"
@@ -137,6 +138,14 @@ def createdEvent(obj, event):
         formFolder = form.getObject()
         target = obj
         source = formFolder
+
+        limit_set = getattr(obj, 'limit_subscriptions', '')
+        if limit_set:
+            NEW_LIMIT = limit_set
+
+        if FORM_ID_TEMP in obj:
+            FORM_ID = FORM_ID_TEMP
+
         if FORM_ID not in obj:
             plone.api.content.copy(source=source, target=target, safe_id=True)
             if FORM_ID in obj:
@@ -171,22 +180,31 @@ def createdEvent(obj, event):
                 # Something went wrong - form was not created
                 pass
         else:
+            print "Already exists"
             # Edit current form
             new_form = obj[FORM_ID]
+            plone.api.content.transition(obj=new_form, transition='publish')
+            NEW_ID = "%s" %(FORM_ID)
+            
+            if FORM_ID_TEMP in obj:
+                FORM_ID = "opgaveformulier"
+            
+            plone.api.content.rename(obj=new_form, new_id=NEW_ID, safe_id=True)
+            
             new_form.reindexObject()
             form_uid = new_form.UID()
-            plone.api.content.transition(obj=new_form, transition='publish')
             button = BUTTON_TEMPLATE % (form_uid)
             
             new_text = RichTextValue(button, 'text/html', 'text/html')
             setattr(obj, 'text', new_text)
 
             if FORM_ELEM_ID in new_form:
-                limit = new_form['limit_subscriptions']
-                limit.setDescription("Er zijn nog %s plaatsen beschikbaar" %(NEW_LIMIT))
-                limit.setPlaceholder(NEW_LIMIT)
-                limit.setMaxval(NEW_LIMIT)
-                limit.setMinval("0")
+                #limit = new_form['limit_subscriptions']
+                #limit.setDescription("Er zijn nog %s plaatsen beschikbaar" %(NEW_LIMIT))
+                #limit.setPlaceholder(NEW_LIMIT)
+                #limit.setMaxval(NEW_LIMIT)
+                #limit.setMinval("0")
+                pass
             else:
                 # There's no limitation in this form
                 pass
