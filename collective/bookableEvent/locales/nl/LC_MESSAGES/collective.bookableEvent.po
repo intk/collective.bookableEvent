@@ -34,3 +34,6 @@ msgstr "Beschrijving"
 msgid "Limit of subscriptions"
 msgstr "Limiet van inschrijvingen"
 
+#: ../exhibition.py
+msgid "Sold out"
+msgstr "Uitverkocht"
