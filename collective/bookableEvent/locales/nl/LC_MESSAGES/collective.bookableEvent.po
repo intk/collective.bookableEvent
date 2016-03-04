@@ -30,3 +30,7 @@ msgstr "Tekst"
 msgid "Description"
 msgstr "Beschrijving"
 
+#: ../exhibition.py
+msgid "Limit of subscriptions"
+msgstr "Limiet van inschrijvingen"
+

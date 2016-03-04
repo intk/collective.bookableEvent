@@ -191,18 +191,6 @@ def createdEvent(obj, event):
                 form_uid = new_form.UID()
                 plone.api.content.transition(obj=new_form, transition='publish')
 
-                button = BUTTON_TEMPLATE % (form_uid)
-
-                current_text = getattr(obj, 'text', '')
-                if not current_text:
-                    new_text = RichTextValue(button, 'text/html', 'text/html')
-                    setattr(obj, 'text', new_text)
-                else:
-                    current_text_raw = current_text.raw
-                    new_text_raw = current_text_raw + button
-                    new_text = RichTextValue(new_text_raw, 'text/html', 'text/html')
-                    setattr(obj, 'text', new_text)
-
                 # Set help veld
                 if FORM_ELEM_ID in new_form:
                     limit = new_form['limit_subscriptions']
@@ -220,21 +208,15 @@ def createdEvent(obj, event):
         else:
             # Edit current form - was copy pasted
             new_form = obj[FORM_ID]
+            
             plone.api.content.transition(obj=new_form, transition='publish')
             if FORM_ID_TEMP in obj:
                 FORM_ID = "opgaveformulier"
-
             NEW_ID = "%s" %(FORM_ID)
             
             # Rename to get proper UID
             plone.api.content.rename(obj=new_form, new_id=NEW_ID, safe_id=True)
             new_form.reindexObject()
-            form_uid = new_form.UID()
-
-            # Create button
-            button = BUTTON_TEMPLATE % (form_uid)
-            new_text = RichTextValue(button, 'text/html', 'text/html')
-            setattr(obj, 'text', new_text)
 
             if FORM_ELEM_ID in new_form:
                 # Keeps the current number

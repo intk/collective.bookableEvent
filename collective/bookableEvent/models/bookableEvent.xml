@@ -17,10 +17,10 @@
         <title i18n:translate="label_event_end">Event Ends</title>
       </field>
 
-      <field name="limit_subscriptions" type="zope.schema.TextLine">
+      <field name="limit_subscriptions" type="zope.schema.TextLine" i18n:domain="collective.bookableEvent">
         <description />
         <required>False</required>
-        <title i18n:translate="">Limit of subscriptions</title>
+        <title i18n:translate="" i18n:domain="collective.bookableEvent">Limit of subscriptions</title>
       </field>
 
       <field name="text" type="plone.app.textfield.RichText" indexer:searchable="true">
