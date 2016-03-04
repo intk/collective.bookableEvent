@@ -36,16 +36,22 @@
   <!-- -*- extra stuff goes here -*- -->
 
   <subscriber
-  for=".bookableEvent.IBookableEvent
-       zope.lifecycleevent.interfaces.IObjectAddedEvent"
-  handler=".bookableEvent.createdEvent"
-/>
+    for=".bookableEvent.IBookableEvent
+         zope.lifecycleevent.interfaces.IObjectAddedEvent"
+    handler=".bookableEvent.createdEvent"
+  />
 
-<subscriber
-  for="Products.PloneFormGen.interfaces.field.IPloneFormGenField
-       zope.lifecycleevent.interfaces.IObjectModifiedEvent"
-  handler=".bookableEvent.modifiedLimit"
-/>
+  <subscriber
+    for=".bookableEvent.IBookableEvent
+         zope.lifecycleevent.interfaces.IObjectModifiedEvent"
+    handler=".bookableEvent.modifiedEvent"
+  />
+
+  <subscriber
+    for="Products.PloneFormGen.interfaces.field.IPloneFormGenField
+         zope.lifecycleevent.interfaces.IObjectModifiedEvent"
+    handler=".bookableEvent.modifiedLimit"
+  />
 
 
 

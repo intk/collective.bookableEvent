@@ -33,6 +33,8 @@ from zope.component import adapts
 from zope.interface import implements
 from plone.app.contenttypes.interfaces import IEvent
 from plone.app.textfield.value import RichTextValue
+from Products.CMFCore.permissions import ModifyPortalContent
+from AccessControl import ClassSecurityInfo
 
 import datetime
 
@@ -56,6 +58,11 @@ class IBookableEvent(form.Schema):
 
 class BookableEvent(Container):
     grok.implements(IBookableEvent)
+    security = ClassSecurityInfo()
+    
+    security.declareProtected(ModifyPortalContent, 'setLimitSubscriptions')
+    def setLimitSubscriptions(self, value):
+        self.limit_subscriptions = value
 
 class BookableEventView(DefaultView):
     def getFBdetails(self):
@@ -111,8 +118,6 @@ class BookableEventView(DefaultView):
         return details
 
 
-
-
 def modifiedLimit(obj, event):
     form_id = getattr(obj, 'id', '')
     if form_id == "limit_subscriptions":
@@ -122,6 +127,39 @@ def modifiedLimit(obj, event):
         obj.setMinval("0")
     else:
         pass
+
+def modifiedEvent(obj, event):
+    FIELD_ID = "limit_subscriptions"
+    DEFAULT_LIMIT = "15"
+
+    limit = getattr(obj, 'limit_subscriptions', '')
+    if not limit:
+        limit = DEFAULT_LIMIT
+        setatt(obj, 'limit_subscriptions', limit)
+
+    form_folder = None
+
+    for _id in obj:
+        content_obj = obj[_id]
+        if content_obj.portal_type == "FormFolder":
+            form_folder = content_obj
+            break
+
+    if form_folder:
+        if FIELD_ID in form_folder:
+            form_field = form_folder[FIELD_ID]
+            form_field.setMaxval(limit)
+            form_field.setPlaceholder(limit)
+            form_field.setDescription("Er zijn nog %s plaatsen beschikbaar" %(limit))
+            form_field.setMinval("0")
+        else:
+            # no field with limit
+            pass
+    else:
+        # no form
+        pass
+
+    return True
 
 def createdEvent(obj, event):
     FORM_ID = "opgaveformulier"
@@ -180,30 +218,26 @@ def createdEvent(obj, event):
                 # Something went wrong - form was not created
                 pass
         else:
-            print "Already exists"
-            # Edit current form
+            # Edit current form - was copy pasted
             new_form = obj[FORM_ID]
             plone.api.content.transition(obj=new_form, transition='publish')
-            NEW_ID = "%s" %(FORM_ID)
-            
             if FORM_ID_TEMP in obj:
                 FORM_ID = "opgaveformulier"
+
+            NEW_ID = "%s" %(FORM_ID)
             
+            # Rename to get proper UID
             plone.api.content.rename(obj=new_form, new_id=NEW_ID, safe_id=True)
-            
             new_form.reindexObject()
             form_uid = new_form.UID()
+
+            # Create button
             button = BUTTON_TEMPLATE % (form_uid)
-            
             new_text = RichTextValue(button, 'text/html', 'text/html')
             setattr(obj, 'text', new_text)
 
             if FORM_ELEM_ID in new_form:
-                #limit = new_form['limit_subscriptions']
-                #limit.setDescription("Er zijn nog %s plaatsen beschikbaar" %(NEW_LIMIT))
-                #limit.setPlaceholder(NEW_LIMIT)
-                #limit.setMaxval(NEW_LIMIT)
-                #limit.setMinval("0")
+                # Keeps the current number
                 pass
             else:
                 # There's no limitation in this form
