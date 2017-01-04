@@ -135,7 +135,7 @@ def modifiedEvent(obj, event):
     limit = getattr(obj, 'limit_subscriptions', '')
     if not limit:
         limit = DEFAULT_LIMIT
-        setatt(obj, 'limit_subscriptions', limit)
+        setattr(obj, 'limit_subscriptions', limit)
 
     form_folder = None
 
@@ -169,8 +169,9 @@ def createdEvent(obj, event):
     TEMPLATE_ID = "workshop-template"
 
     catalog = getToolByName(obj, 'portal_catalog')
+    
     # get form
-    forms = catalog(Subject=TEMPLATE_ID, portal_type="FormFolder")
+    forms = catalog(Subject=TEMPLATE_ID, portal_type="FormFolder", path={"query": "/NewTeylers/nl/templates", "depth": 1})
     if forms:
         form = forms[0]
         formFolder = form.getObject()
@@ -227,3 +228,4 @@ def createdEvent(obj, event):
     else:
         # Something went wrong. - template was not found
         pass
+    
